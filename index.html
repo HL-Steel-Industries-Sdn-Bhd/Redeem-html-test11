@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reward Redemption</title>
+<style>
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    font-size: 2em;
+    cursor: pointer;
+    color: #2c3e50;
+    transition: transform 0.3s ease;
+}
+
+.back-button:hover {
+    transform: scale(1.1);
+}
+
+.page-title {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 200px;
+}
+
+.info-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.info-label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+/* Rewards Grid */
+.rewards-grid {
+    display: grid;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* Portrait (Mobile) - 2 columns */
+@media (orientation: portrait) {
+    .rewards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Landscape (Desktop) - 8 columns */
+@media (orientation: landscape) {
+    .rewards-grid {
+        grid-template-columns: repeat(7, 1fr);
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .rewards-grid::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .rewards-grid::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+    }
+
+    .rewards-grid::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+    }
+}
+
+/* Reward Card */
+.reward-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reward-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.points-required {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #e74c3c;
+    padding: 8px;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.reward-image {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+}
+
+.reward-image img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.reward-name {
+    height: 60px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    line-height: 1.3;
+    overflow: hidden;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #3498db;
+    color: white;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.quantity-btn:hover:not(:disabled) {
+    background: #2980b9;
+}
+
+.quantity-btn:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.quantity-input {
+    width: 40px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    background: transparent;
+    color: #2c3e50;
+}
+
+.point-required {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    padding: 5px;
+    border-top: 1px solid #eee;
+}
+
+.point-required span {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.redeem-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.redeem-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.redeem-btn:hover::before {
+    left: 100%;
+}
+
+.redeem-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+}
+
+.redeem-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.redeem-btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.redeem-btn.redeeming {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal h3 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.modal-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-btn.yes {
+    background: #2ecc71;
+    color: white;
+}
+
+.modal-btn.no {
+    background: #e74c3c;
+    color: white;
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Hidden Forms */
+.hidden-form {
+    display: none;
+}
+
+/* Loading */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    font-size: 1.5em;
+    color: #333;
+}
+
+/* Success Message */
+.success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #2ecc71;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1001;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Error Message */
+.error-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #e74c3c;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1001;
+    animation: slideIn 0.3s ease;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .user-info {
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .info-box {
+        flex: 1;
+        max-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rewards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .reward-name {
+        height: auto;
+        min-height: 40px;
+    }
+}
+</style>
+</head>
+<body>
+<div id="loading" class="loading">Loading rewards...</div>
+
+<!-- Success and Error Messages -->
+<div id="successMessage" class="success-message">
+    ✓ Redemption successful! Points deducted.
+</div>
+<div id="errorMessage" class="error-message">
+    ✗ Redemption failed. Please try again.
+</div>
+
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <h3>Confirm Redemption</h3>
+        <p>Are you sure you want to redeem <span id="confirmItem"></span>?</p>
+        <p>This will consume <span id="confirmPoints"></span> points.</p>
+        <div class="modal-buttons">
+            <button class="modal-btn yes" onclick="confirmRedeem()">Yes</button>
+            <button class="modal-btn no" onclick="closeModalAndResume()">No</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <button class="back-button" onclick="goBack()">←</button>
+        <div class="page-title">Reward Redemption</div>
+        <div class="user-info">
+            <div class="info-box">
+                <div class="info-label">User</div>
+                <div class="info-value" id="currentUser">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">Remaining Points</div>
+                <div class="info-value" id="currentPoints">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rewards-grid" id="rewardsGrid"></div>
+</div>
+
+<script>
+// 编码到用户名的映射表
+const CODE_TO_USER = {
+    'nX4G9VmZ8eH2CLaD': 'Albert',
+    'P3JdM6KQ4BqvARZ5': 'Aung Thant',
+    'wZ2sF8mP1HkQ3DVL': 'Bunyau',
+    'Q9T2gA5XvM8JZb4c': 'Chin Sau Ying',
+    'LrF7W6eZV4sC3PN5': 'Edika',
+    '8DqZKT9WHXQpM32A': 'Han Lin Maung',
+    'C4VZsT2m76gYLRN1': 'Lee Lung Chay',
+    'tXq4m89P3bKZHEVg': 'Luna',
+    '2XQVf9cDyPWL7M8k': 'Myo Min Niang',
+    'a9CZTq73r4XHB8nG': 'Peter Seah',
+    'K7s4pP98tV2HGDJx': 'Piang Soe',
+    'MZC4nsp8B6L1y2F9': 'Terrence',
+    'f3XvGMkQ6NDTWP98': 'Wai Phyo',
+    'Y62T4PH9NVxAEZ3k': 'William Choo',
+    'sD7VAX4pW1fheN92': 'Wong Chok Poh'
+};
+
+const CONFIG = {
+    gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbzqsiU5z_rt7DtIZ6xfwJ72YU-m1RR3F325HH5yVLnL6hCxH046vMOvmV3-xIPJxCEdyQ/exec',
+    rewards: [
+        { name: 'SAMSUNG 4K Smart TV', points: 1370000, image: '' },
+        { name: 'OPPO Reno13 F 5G Smartphone', points: 1030000, image: '' },
+        { name: 'Hisense 3 Star Aircond', points: 690000, image: '' },
+        { name: 'REZO VENTUS Ceiling Fan', points: 159000, image: '' },
+        { name: 'Pensonic 16" Stand Fan', points: 147000, image: '' },
+        { name: 'UGREEN Fast Charger (3 Type-C,1 USB)', points: 199000, image: '' },
+        { name: 'UGREEN Fast Charging Cable (Type C to USB)', points: 32990, image: '' },
+        { name: 'Colgate Premier Clean Toothbrush (1pcs)', points: 2400, image: '' },
+        { name: 'Colgate Triple Action Toothpaste Mint (200g)', points: 7500, image: '' },
+        { name: 'NESTLE NESTUM 3in1 Oats (14 Packets x 30g)', points: 13000, image: '' },
+        { name: 'NESCAFÉ 3in1 Rich (25 Sticks x 18g)', points: 17000, image: '' },
+        { name: 'NESTLE MILO 3in1 (26 Sticks x 33g)', points: 27000, image: '' },
+        { name: 'MAGGI Hot Cup Curry (6 cups x 58g)', points: 14000, image: '' },
+        { name: 'HUP SENG Cream Biscuit (428g)', points: 6000, image: '' }
+    ]
+};
+
+let currentUser = '';
+let decodedUserName = '';
+let remainingPoints = 0;
+let redeemCooldown = false;
+let currentRedeemData = null;
+let cooldownTimer = null;
+let isRedeeming = false;
+
+// 解码用户编码
+function decodeUserCode(code) {
+    // 如果编码在映射表中，返回对应的用户名
+    if (CODE_TO_USER.hasOwnProperty(code)) {
+        return CODE_TO_USER[code];
+    }
+    // 如果编码不在映射表中，返回原始编码（作为后备）
+    return code;
+}
+
+// 获取URL参数
+function getQueryParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// 获取剩余点数
+function fetchRemainingPoints(user) {
+    fetch(`${CONFIG.gasWebAppUrl}?name=${encodeURIComponent(user)}&sheet=1nnjHKRP5mfutcX0DCnGBzFQOw78dX5MbkknZio_hRQc&tab=Remaining Point`)
+    .then(response => response.json())
+    .then(data => {
+        remainingPoints = data.remainingPoint || 0;
+        document.getElementById('currentPoints').textContent = remainingPoints.toLocaleString();
+        updateRewardButtonState();
+    })
+    .catch(err => {
+        console.error('Error fetching remaining points:', err);
+        remainingPoints = 0;
+        document.getElementById('currentPoints').textContent = remainingPoints.toLocaleString();
+    });
+}
+
+// 显示消息
+function showMessage(type, duration = 3000) {
+    const messageId = type === 'success' ? 'successMessage' : 'errorMessage';
+    const messageElement = document.getElementById(messageId);
+    messageElement.style.display = 'block';
+    setTimeout(() => {
+        messageElement.style.display = 'none';
+    }, duration);
+}
+
+// 提交兑换记录到GAS
+async function submitRedeemLog(data) {
+    try {
+        const formData = new FormData();
+        formData.append('action', 'submitRedeemLog');
+        formData.append('name', data.name);
+        formData.append('reward', data.reward);
+        formData.append('quantity', data.quantity);
+        formData.append('points', data.points);
+        
+        const response = await fetch(CONFIG.gasWebAppUrl, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        console.log('Redeem log submission result:', result);
+        
+        fetchRemainingPoints(decodedUserName);
+        showMessage('success');
+        
+        if (currentRedeemData && currentRedeemData.index !== undefined) {
+            document.getElementById(`qty-${currentRedeemData.index}`).value = 0;
+            document.getElementById(`req-${currentRedeemData.index}`).textContent = '0';
+        }
+    } catch (error) {
+        console.error('Error submitting redeem log:', error);
+        showMessage('error');
+    } finally {
+        isRedeeming = false;
+        resumeButtons();
+        currentRedeemData = null;
+    }
+}
+
+// 开始封锁按钮
+function lockButtons() {
+    redeemCooldown = true;
+    
+    CONFIG.rewards.forEach((reward, index) => {
+        const redeemBtn = document.getElementById(`redeem-${index}`);
+        redeemBtn.disabled = true;
+        redeemBtn.textContent = 'Processing...';
+    });
+    
+    if (cooldownTimer) {
+        clearInterval(cooldownTimer);
+        cooldownTimer = null;
+    }
+}
+
+// 恢复按钮
+function resumeButtons() {
+    redeemCooldown = false;
+    
+    if (cooldownTimer) {
+        clearInterval(cooldownTimer);
+        cooldownTimer = null;
+    }
+    
+    CONFIG.rewards.forEach((reward, index) => {
+        const redeemBtn = document.getElementById(`redeem-${index}`);
+        redeemBtn.textContent = 'Redeem';
+    });
+    
+    updateRewardButtonState();
+}
+
+// 更新按钮状态
+function updateRewardButtonState() {
+    CONFIG.rewards.forEach((reward, index) => {
+        const redeemBtn = document.getElementById(`redeem-${index}`);
+        const qtyInput = document.getElementById(`qty-${index}`);
+        const quantity = parseInt(qtyInput.value) || 0;
+        
+        const minusBtn = document.querySelector(`#qty-${index}`).parentElement.querySelector('.minus');
+        const plusBtn = document.querySelector(`#qty-${index}`).parentElement.querySelector('.plus');
+        
+        minusBtn.disabled = (quantity <= 0);
+        plusBtn.disabled = (quantity >= 10);
+        
+        if (quantity * reward.points <= remainingPoints && quantity > 0 && !redeemCooldown && !isRedeeming) {
+            redeemBtn.disabled = false;
+        } else {
+            redeemBtn.disabled = true;
+        }
+    });
+}
+
+// 打开确认框
+function initiateRedeem(index) {
+    const reward = CONFIG.rewards[index];
+    const qty = parseInt(document.getElementById(`qty-${index}`).value) || 0;
+    if (qty === 0) return;
+    
+    currentRedeemData = {
+        name: decodedUserName, // 使用解码后的用户名
+        reward: reward.name,
+        quantity: qty,
+        points: qty * reward.points,
+        index: index
+    };
+    document.getElementById('confirmItem').textContent = reward.name + ` x${qty}`;
+    document.getElementById('confirmPoints').textContent = (qty * reward.points).toLocaleString();
+    document.getElementById('confirmationModal').style.display = 'flex';
+}
+
+// 确认兑换
+function confirmRedeem() {
+    if (!currentRedeemData) {
+        closeModal();
+        return;
+    }
+
+    isRedeeming = true;
+    lockButtons();
+    closeModal();
+    submitRedeemLog(currentRedeemData);
+}
+
+// 关闭modal并恢复按钮
+function closeModalAndResume() {
+    document.getElementById('confirmationModal').style.display = 'none';
+    if (!isRedeeming) {
+        resumeButtons();
+    }
+}
+
+// 关闭modal
+function closeModal() {
+    document.getElementById('confirmationModal').style.display = 'none';
+}
+
+// 奖励卡数量控制
+function changeQuantity(index, delta) {
+    if (redeemCooldown) return;
+    
+    const qtyInput = document.getElementById(`qty-${index}`);
+    let qty = parseInt(qtyInput.value) || 0;
+    qty += delta;
+    
+    if (qty < 0) qty = 0;
+    if (qty > 10) qty = 10;
+    
+    qtyInput.value = qty;
+    const reward = CONFIG.rewards[index];
+    document.getElementById(`req-${index}`).textContent = (qty * reward.points).toLocaleString();
+    updateRewardButtonState();
+}
+
+// 返回按钮
+function goBack() {
+    window.history.back();
+}
+
+// 渲染奖励卡
+function renderRewards() {
+    const grid = document.getElementById('rewardsGrid');
+    grid.innerHTML = '';
+    CONFIG.rewards.forEach((reward, index) => {
+        const card = document.createElement('div');
+        card.className = 'reward-card';
+        card.innerHTML = `
+            <div class="points-required">${reward.points.toLocaleString()} pts</div>
+            <div class="reward-image"><img src="${reward.image || 'https://via.placeholder.com/150'}" alt="${reward.name}"></div>
+            <div class="reward-name">${reward.name}</div>
+            <div class="quantity-controls">
+                <button class="quantity-btn minus" onclick="changeQuantity(${index}, -1)" disabled>-</button>
+                <input id="qty-${index}" class="quantity-input" value="0" readonly>
+                <button class="quantity-btn plus" onclick="changeQuantity(${index}, 1)">+</button>
+            </div>
+            <div class="point-required">Total: <span id="req-${index}">0</span> pts</div>
+            <button id="redeem-${index}" class="redeem-btn" onclick="initiateRedeem(${index})" disabled>Redeem</button>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// 初始化
+window.addEventListener('DOMContentLoaded', () => {
+    const code = getQueryParameter('user') || '';
+    
+    // 解码用户编码
+    decodedUserName = decodeUserCode(code);
+    
+    // 显示在页面上的是解码后的用户名
+    document.getElementById('currentUser').textContent = decodedUserName;
+    
+    // 将编码存储在currentUser变量中（用于URL传参）
+    currentUser = code;
+    
+    renderRewards();
+    fetchRemainingPoints(decodedUserName); // 使用解码后的用户名获取点数
+    document.getElementById('loading').style.display = 'none';
+});
+</script>
+</body>
+</html>
